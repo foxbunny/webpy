@@ -1004,7 +1004,7 @@ class Render:
             raise AttributeError, "No template named " + name            
 
     def _findfile(self, path_prefix): 
-        return findfile(path_prefix)
+        return findbyprefix(path_prefix)
             
     def _template(self, name):
         if self._cache is not None:
