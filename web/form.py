@@ -3,7 +3,7 @@ HTML forms
 (part of web.py)
 """
 
-import copy, re
+import copy, re, cgi
 import webapi as web
 import utils, net
 
@@ -411,6 +411,13 @@ class File(Input):
     """
     def get_type(self):
         return 'file'
+
+    def set_value(self, value):
+        self.value = value
+        if isinstance(value, cgi.FieldStorage):
+            self.filename = value.filename
+            self.content = value.value
+            self.file = value.file
     
 class Validator:
     def __deepcopy__(self, memo): return copy.copy(self)

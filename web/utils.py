@@ -30,7 +30,7 @@ __all__ = [
   "sendmail"
 ]
 
-import re, sys, time, threading, itertools, traceback, os
+import re, sys, time, threading, itertools, traceback, os, cgi
 
 try:
     import subprocess
@@ -146,7 +146,8 @@ def storify(mapping, *requireds, **defaults):
                 value = [getvalue(x) for x in value]
             else:
                 value = value[-1]
-        if not isinstance(defaults.get(key), dict):
+        if not isinstance(defaults.get(key), dict) and \
+           not isinstance(value, cgi.FieldStorage):
             value = getvalue(value)
         if isinstance(defaults.get(key), list) and not isinstance(value, list):
             value = [value]
