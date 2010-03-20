@@ -1409,6 +1409,31 @@ class _EmailMessage:
     def __str__(self):
         return self.message.as_string()
 
+def forceint(n, default=0):
+    """ Forces conversion of ``n`` to integer, and falls back on ``default``
+
+    Both ``n`` and ``default`` can be any numeric value, or a string that can
+    be converted into a numeric value.
+
+    Examples:
+
+        >>> forceint(1, 2)
+        1
+        >>> forceint(2.1, 1)
+        2
+        >>> forceint('5', 1)
+        5
+        >>> forceint('foo', 3)
+        3
+        >>> forceint('foo', 'bar')
+        0
+
+    """
+    try:
+        return int(n)
+    except (TypeError, ValueError):
+        return forceint(default)
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
