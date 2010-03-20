@@ -3,6 +3,8 @@ Interface to various templating engines.
 """
 import os.path
 
+from web.utils import findbyprefix
+
 __all__ = [
     "render_cheetah", "render_genshi", "render_mako",
     "cache", 
@@ -23,7 +25,7 @@ class render_cheetah:
 
     def __getattr__(self, name):
         from Cheetah.Template import Template
-        path = os.path.join(self.path, name + ".html")
+        path = findbyprefix(os.path.join(self.path, name))
         
         def template(**kw):
             t = Template(file=path, searchList=[kw])
@@ -54,6 +56,7 @@ class render_genshi:
 
     def __getattr__(self, name):
         # Assuming all templates are html
+        # FIXME: need to know template dir name before any ext can be handled
         path = name + ".html"
 
         if self._type == "text":
@@ -91,6 +94,7 @@ class render_jinja:
         
     def __getattr__(self, name):
         # Assuming all templates end with .html
+        # FIXME: need to know template dir name fore any ext can be handled
         path = name + '.html'
         t = self._lookup.get_template(path)
         return t.render
@@ -105,11 +109,18 @@ class render_mako:
     """
     def __init__(self, *a, **kwargs):
         from mako.lookup import TemplateLookup
-        self._lookup = TemplateLookup(*a, **kwargs)
+        # Pop and remember ``directories``
+        self.dirs = kwargs.pop('directories')
+        # If ``directories`` is a string, make it a list.
+        # This makes it possible to use a single directory without using a list.
+        if isinstance(self.dirs, str):
+            self.dirs = [self.dirs]
+        self._lookup = TemplateLookup(*a, directories=self.dirs, **kwargs)
 
     def __getattr__(self, name):
-        # Assuming all templates are html
-        path = name + ".html"
+        path = None
+        for dir in self.dirs:
+            path = os.path.basename(findbyprefix(os.path.join(dir, name))) or path
         t = self._lookup.get_template(path)
         return t.render
 

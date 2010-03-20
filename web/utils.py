@@ -30,7 +30,7 @@ __all__ = [
   "sendmail"
 ]
 
-import re, sys, time, threading, itertools, traceback, os, cgi
+import re, sys, time, threading, itertools, traceback, os, cgi, glob
 
 try:
     import subprocess
@@ -1434,6 +1434,12 @@ def forceint(n, default=0):
         return int(n)
     except (TypeError, ValueError):
         return forceint(default)
+
+def findbyprefix(path_prefix):
+    """ Finds a file based on path prefix without extension """
+    p = [f for f in glob.glob(path_prefix + '.*') if not f.endswith('~')] # skip backup files
+    p.sort() # sort the matches for deterministic order
+    return p and p[0]
 
 if __name__ == "__main__":
     import doctest
