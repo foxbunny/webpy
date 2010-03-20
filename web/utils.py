@@ -30,7 +30,7 @@ __all__ = [
   "sendmail"
 ]
 
-import re, sys, time, threading, itertools, traceback, os
+import re, sys, time, threading, itertools, traceback, os, glob
 
 try:
     import subprocess
@@ -1408,6 +1408,12 @@ class _EmailMessage:
     
     def __str__(self):
         return self.message.as_string()
+
+def findfile(path_prefix):
+    """ Finds a file based on path prefix without extension """
+    p = [f for f in glob.glob(path_prefix + '.*') if not f.endswith('~')] # skip backup files
+    p.sort() # sort the matches for deterministic order
+    return p and p[0]
 
 if __name__ == "__main__":
     import doctest

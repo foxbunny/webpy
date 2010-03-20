@@ -37,10 +37,9 @@ __all__ = [
 
 import tokenize
 import os
-import glob
 import re
 
-from utils import storage, safeunicode, safestr, re_compile
+from utils import storage, safeunicode, safestr, re_compile, findfile
 from webapi import config
 from net import websafe
 
@@ -1005,9 +1004,7 @@ class Render:
             raise AttributeError, "No template named " + name            
 
     def _findfile(self, path_prefix): 
-        p = [f for f in glob.glob(path_prefix + '.*') if not f.endswith('~')] # skip backup files
-        p.sort() # sort the matches for deterministic order
-        return p and p[0]
+        return findfile(path_prefix)
             
     def _template(self, name):
         if self._cache is not None:
