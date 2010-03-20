@@ -248,24 +248,89 @@ class Dropdown(Input):
         return x
 
 class Radio(Input):
-    def __init__(self, name, args, *validators, **attrs):
+    """ Radio buttons.
+
+    >>> Radio('radio', ['1', '2']).render()
+    '<span id="radio">\\n\
+<input type="radio" id="radio1" value="1" name="radio"/> \
+<label for="radio1">1</label>\\n\
+<input type="radio" id="radio2" value="2" name="radio"/> \
+<label for="radio2">2</label>\\n\
+</span>'
+
+    >>> Radio('radio', ('1', '2')).render()
+    '<span id="radio">\\n\
+<input type="radio" id="radio1" value="1" name="radio"/> \
+<label for="radio1">1</label>\\n\
+<input type="radio" id="radio2" value="2" name="radio"/> \
+<label for="radio2">2</label>\\n\
+</span>'
+
+    >>> Radio('radio', [('1', 'desc 1'), ('2', 'desc 2')]).render()
+    '<span id="radio">\\n\
+<input type="radio" id="radio1" value="1" name="radio"/> \
+<label for="radio1">desc 1</label>\\n\
+<input type="radio" id="radio2" value="2" name="radio"/> \
+<label for="radio2">desc 2</label>\\n\
+</span>'
+
+    >>> Radio('radio', ['1', '2'], vertical=True).render()
+    '<span id="radio">\\n\
+<input type="radio" id="radio1" value="1" name="radio"/> \
+<label for="radio1">1</label><br />\\n\
+<input type="radio" id="radio2" value="2" name="radio"/> \
+<label for="radio2">2</label><br />\\n\
+</span>'
+
+    >>> r = Radio('radio', [('1', 'desc 1'), ('2', 'desc 2')])
+    >>> r.value = '1'
+    >>> r.render()
+    '<span id="radio">\\n\
+<input checked="checked" type="radio" id="radio1" value="1" name="radio"/> \
+<label for="radio1">desc 1</label>\\n\
+<input type="radio" id="radio2" value="2" name="radio"/> \
+<label for="radio2">desc 2</label>\\n\
+</span>'
+    >>> r.value = '2'
+    >>> r.render()
+    '<span id="radio">\\n\
+<input type="radio" id="radio1" value="1" name="radio"/> \
+<label for="radio1">desc 1</label>\\n\
+<input checked="checked" type="radio" id="radio2" value="2" name="radio"/> \
+<label for="radio2">desc 2</label>\\n\
+</span>'
+
+    """
+    def __init__(self, name, args, *validators, vertical=False, **attrs):
         self.args = args
+        self.vertical = vertical
         super(Radio, self).__init__(name, *validators, **attrs)
 
     def render(self):
-        x = '<span>'
+        x = '<span id="%s">\n' % self.name
+        counter = 1
         for arg in self.args:
             if isinstance(arg, (tuple, list)):
-                value, desc= arg
+                value, desc = arg
             else:
-                value, desc = arg, arg 
+                value, desc = arg, arg
+            if self.vertical:
+                spacer = '<br />\n'
+            else:
+                spacer = '\n'
             attrs = self.attrs.copy()
+            id = '%s%s' % (self.name, counter)
             attrs['name'] = self.name
             attrs['type'] = 'radio'
-            attrs['value'] = arg
-            if self.value == arg:
+            attrs['value'] = value
+            attrs['id'] = id
+            if self.value == value:
                 attrs['checked'] = 'checked'
-            x += '<input %s/> %s' % (attrs, net.websafe(desc))
+            x += '<input %s/> <label for="%s">%s</label>%s' % (attrs,
+                                                               id,
+                                                               net.websafe(desc),
+                                                               spacer)
+            counter += 1
         x += '</span>'
         return x
 
