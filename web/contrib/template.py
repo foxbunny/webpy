@@ -3,7 +3,7 @@ Interface to various templating engines.
 """
 import os.path
 
-from web.utils import findfile
+from web.utils import findbyprefix
 
 __all__ = [
     "render_cheetah", "render_genshi", "render_mako",
@@ -25,7 +25,7 @@ class render_cheetah:
 
     def __getattr__(self, name):
         from Cheetah.Template import Template
-        path = findfile(os.path.join(self.path, name))
+        path = findbyprefix(os.path.join(self.path, name))
         
         def template(**kw):
             t = Template(file=path, searchList=[kw])
@@ -120,7 +120,7 @@ class render_mako:
     def __getattr__(self, name):
         path = None
         for dir in self.dirs:
-            path = os.path.basename(findfile(os.path.join(dir, name))) or path
+            path = os.path.basename(findbyprefix(os.path.join(dir, name))) or path
         t = self._lookup.get_template(path)
         return t.render
 
