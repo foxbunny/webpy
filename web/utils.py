@@ -1409,7 +1409,7 @@ class _EmailMessage:
     def __str__(self):
         return self.message.as_string()
 
-def findfile(path_prefix):
+def findbyprefix(path_prefix):
     """ Finds a file based on path prefix without extension """
     p = [f for f in glob.glob(path_prefix + '.*') if not f.endswith('~')] # skip backup files
     p.sort() # sort the matches for deterministic order
