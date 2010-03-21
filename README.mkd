@@ -23,6 +23,10 @@ The fork itself is maintained in the _foxbunny_ branch.
 
 ## Changelog
 
+### 0.34.11fox
+
+* Added documentation for the sweet class
+
 ### 0.34.1fox
 
 Patches for following tickets are included:
