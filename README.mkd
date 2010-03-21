@@ -1,0 +1,275 @@
+# Foxbunny's web.py
+
+A close relative of [web.py](http://www.webpy.org/) maintained by Branko
+Vukelic (bg [dot] branko [at] gmail [dot] com).  Compared to web.py, it has
+very little different features, but it does have fixes for various bugs not
+released in the main project.
+
+## Versioning scheme
+
+Each release is versioned like this:
+
+${web.py's version}.${foxbunny's patchset}fox
+
+For example, first patchset over version 0.34 would be _0.34.1fox_.
+
+## Branches
+
+Because of the need to commit patches to upstream, the master branch in
+Foxbunny's web.py fork is a clean copy of the upstream project. Other branches
+branch from the master branch to introduce fixes for various launchpad tickets.
+
+The fork itself is maintained in the _foxbunny_ branch.
+
+## Changelog
+
+### 0.34.1fox
+
+Patches for following tickets are included:
+
+* __Bug #542568:__ Templetor's _find_file method should be available to
+  contributed template support code
+* __Bug #252232:__ Cannot use Mako templates not ending in '.html'
+* __Bug #130440:__ Radio button behavior unlike dropdown
+* __Bug #542963:__ Utility to force conversion to integer
+* __Bug #525260:__ File upload should assign cgi.FieldStorage to form.File
+  field's value attribute
+
+Feature not found in upstream version:
+
+* __seweet class:__ abstraction layer over regular web.py controllers (docs are
+  included in the source code (web/contrib/sweet.py) and in this README.
+
+## sweet class
+
+### Overview
+
+sweet class allows you to handle requests marked as a named action. Naming an
+action is performed by using the ``action`` request parameter. At this moment,
+this cannot be customized, although it is planned for future releases.
+
+Once the request with named action is received, sweet class matches the action
+name to one of its custom methods. The method must be named using the same name
+as the action. The custom method does what is usually expected of regular POST
+and GET methods in usual web.py controllers.
+
+### Basic setup
+
+To use the sweet class import it into your application and subclass it.
+
+    from web.contrib.sweet import sweet
+
+    class my_controller(sweet):
+        pass
+
+The above simplistic controller is only capable of raising the
+``NotImplementedError`` exception on every request and nothing else. To make
+this controller do anything remotely useful, you need to define at least the
+``default`` method. This method is a catch-all method that is called whenever
+no ``action`` parameter is received, or a matching method is not found.
+
+    class my_controller(sweet):
+        def default(self):
+            # do something useful here
+
+### Differentiating between POST and GET (and other) requests
+
+You might have noticed that the ``default`` method is not explicitly marked as
+accepting either POST or GET response. It actually accepts both. If you need to
+differentiate between different HTTP verbs, you can test the value of
+``self._method`` attribute:
+
+    class my_controller(sweet):
+        def default(self):
+            if self._method == 'GET':
+                # respond to GET
+            elif self._method == 'POST':
+                # respond to POST
+            elif self._method == 'PUT':
+                # respond to PUT
+
+### Differentiating between AJAX and non-AJAX requests
+
+If you want to make different responses to AJAX and non-AJAX methods, you can
+test if the request was made via an AJAX call by looking at the value of
+``self._is_ajax`` attribute. It contains ``None`` if the request was non-AJAX,
+and it contains the contents of the 'HTTP_X_REQUESTED_WITH' header if it was.
+
+Assumption here is that only AJAX method set _any_ content in this header. This
+behavior might change in future versions of the sweet class to whitelisting of
+header contents, in which case the ``_is_ajax`` attribute would contain ``True``
+or ``False``.
+
+### Custom action methods
+
+The point of a sweet class is to define methods that respond to a particular
+action. To do this, simply define a method that matches the name of an action
+you wish to respond to:
+
+    class my_controller(sweet):
+        def default(self):
+            # default action
+        def create(self):
+            # respond only to ``create`` action
+
+In the setup above, if you pass an action parameter with the value of
+``create``, the ``create`` method is called instead of the ``default``. You
+can pass the parameter either using the URL parameter ``?action=create`` or
+via a web form in a POST request, like in this example:
+
+    <form action='/my/controller' method='post'>
+        <input type=text name='myfield' /><br />
+        <input type='submit' name='action' value='create' />
+    </form>
+
+Any arguments that are contained in URL definitions are accepted by custom
+methods.
+
+    urls = ('/posts/(title)', 'my_controller')
+
+    class my_controller(sweet):
+        def show_post(self, title):
+            # do something
+
+### Restricting custom methods
+
+Although this applies to the ``default`` method as well, we suggest you only
+restrict custom methods, and allow the ``default`` method to respond to any
+request, and handle any unforeseen situation yourself.
+
+To restrict a custom method, you can use the decorators provided by the sweet
+module.
+
+    from web.contrib.sweet import sweet, accepts, ajax
+
+    class my_controller(sweet):
+        def default(self):
+            # default action
+
+        @accepts('POST')
+        @ajax
+        def custom(self):
+            # custom method
+            # accepts only POST request made via AJAX
+
+        @accepts('GET')
+        def list(self)
+            # accepts only GET requests, AJAX or otherwise
+
+        @accepts('GET')
+        @ajax(False)
+        def archive(self):
+            # accepts only GET, non-AJAX requests
+            # AJAX requests are not responded to
+
+        @accepts(['POST', 'PUT'])
+        def update(self):
+            # accepts both POST and PUT requests, AJAX or otherwise
+
+        def beep(self):
+            # accepts all HTTP verbs, AJAX or otherwise
+
+In case you didn't catch it, the ``ajax`` decorator restricts both ways. If
+it is invoked with ``True`` or no argument, the method will only accept
+AJAX requests and bounce non-AJAX requests. If it is invoked with a ``False``
+argument, it will bounce AJAX requests. To accept both, do not use this
+decorator.
+
+The ``accepts`` decorator accepts either string or list argument. A list
+argument can contain multiple HTTP verbs the method will respond to. Currently
+sweet supports the following verbs out-of-box: GET, HEAD, POST, PUT, DELETE.
+To support a custom verb, you need to follow the instructions in the custom
+verb section below (see _Setting up the sweet subclass for custom verbs_).
+
+### URL parameters
+
+To simplify hadnling of URL parameters in GET requests, sweet class can extract
+the values from ``web.input`` every time an instance is initialized. To do that
+specify a property that returns a dictionary of URL parameters and their default
+values. There are two ways to do this:
+
+    # Method A
+    class my_controller(sweet):
+        urlparams = {'page': 1, 'per_page': 10}
+
+    # Method B
+    class my_controller(sweet):
+        @property
+        def urlparams(self):
+            # do some calculations
+            return result # <- ``result`` is a dict
+
+Once the instance is initialized, you can access the values of the URL
+parameters using the ``self._q`` attribute. In the above example, the ``page``
+parameter can be accessed as ``self._q.page`` or ``self._q['page']``.
+
+### Allowed HTTP verbs
+
+You can limit the entire sweet subclass to a subset (or superset) of HTTP verbs
+it will allow. To do this, define the ``allowed_methods`` property. This can be
+done the same way as with URL parameters above, but the result is a list, not
+dictionary. By default, sweet class is restricted to GET and POST verbs.
+
+### Customizing instance initialization
+
+While sweet subclass is instantiated, it goes through three phases. It first
+calls the subclass' ``__init__``, then it does the instance configuration,
+and finally calls the subclass' ``_init``.
+
+It is important to note that ``__init__`` is called _before_ configuration step,
+and ``_init`` is called _after_ it. In the configuration step, the subclass is
+assigned the ``_a``, ``_q``, ``_i``, ``_method``, and ``_is_ajax`` attributes.
+These attributes cannot be accessed during the ``__init__`` phase, and therefore
+if you need to do any custom configuration that involve these attributes, you
+should override the ``_init`` method and do the configuration there.
+
+### sweet class attributes
+
+Here are the descriptions of the sweet class attribute mentioned in the previous
+section.
+
+* ``_a`` (action): Contains the name of the action. Defaults to ``default``
+* ``_i`` (input): Contains all of the request parameters (same as ``web.input``)
+* ``_q`` (query): Contains the URL params specified by ``urlparams``
+* ``_method``: Contains the HTTP verb used in the request.
+* ``_is_ajax``: Contains the contents of 'HTTP_X_REQUESTED_WITH' header (or
+  None if this header was not set by the client)
+
+### Setting up the sweet subclass for custom verbs
+
+Because of the way web.py works, custom HTTP verbs cannot be added dynamically.
+To set up the sweet subclass to accept custom verbs, you have to define a method
+with the name of the verb and (optionally) hand the controll over to ``_handle``
+method. Here is an example using the custom COPY verb:
+
+    class my_controller(sweet):
+        allowed_methods = ['GET', 'POST', 'COPY']
+
+        def COPY(self, *args):
+            self._method = 'COPY'
+            self.handle(*args)
+
+        @accepts('COPY')
+        def copy_this(self, *args):
+            # copy something
+
+If you don't want the custom method to handle any actions, simply omit the
+``self._method = ...`` and ``self.handle(...)`` lines, and write your own
+controller code.
+
+## Known issues
+
+### ``action`` parameter case-sensitivity
+
+The value of the ``action`` parameter is case-sensitive. This will be solved in
+future versions, but for now keep in mind the case-sensitivity of this parameter
+and name your methods accordingly. Another workaround is to use hidden fields in
+forms rather than controls whose values are user-facing (e.g, submit buttons).
+
+### ``action`` parameter normalization
+
+The ``action`` parameter cannot contain characters that are not allowed in
+Python method names. For example, it cannot contain spaces, or slashes, or dots,
+etc. This will be fixed in future versions with a predictable algorhythm for
+normalization of ``action`` parameter. You can use the same workaround as the
+second one in the case-sensitivity issue to work around this issue.
