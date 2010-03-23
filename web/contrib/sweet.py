@@ -1,6 +1,7 @@
 import re
 
 import web
+from web.utils import slugify
 
 __all__ = [
     'sweet', 'accepts', 'ajax',
@@ -107,13 +108,25 @@ class Sweet(object):
     name begins with an underscore are ignored. Therefore, all private
     non-action methods should have an underscore prefix.
 
-    A note about action names. You can only use action names that begin with a
-    letter, and contain letters (A-Z), numbers (0-9), dashes (-) and underscores
-    (_). You can mix lower-case and upper-case letters, but all letters will be
-    converted to lower-case, so your method names should use lower-case letters
-    only. As of this moment, only English alphabet is supported. Future versions
-    of sweet class will make use of slugize tools (planned for inclusion in
-    web.py-fox 0.34.2fox) to convert non-English characters.
+    Action names can contain some non-ASCII letters. Currently, the following
+    scripts are supported (via slugify): English (with two special charcters),
+    Greek, Russian, Ukrainian, Czech, Polish, Latvian, Serbian, and Turkish.
+    When transliteration pairs are looked up, if there are any overlaps between
+    the scripts, the first one that appears in the list will take precedense.
+    This can be overriden by explicitly setting the current locale.
+
+    To set the locale for action name conversion, use the
+    ``web.ctx.current_locale``parameter. You can either set a single two-letter
+    locale, or an iterable containing multiple locales in order of precedence.
+    If there are any characters from an unsupported script, they will be
+    stripped. If all characters are stripped from the action name, the
+    ``default`` action name will be used instead. You can still use actions in
+    such casesby manually checking the ``self._i.action`` parameter, and
+    calling your action methods manually.
+
+    All punctuation characters except dashes (-) and underscores (_) will also
+    be stripped from action names. Also note that action names cannot begin with
+    a number or an underscore.
 
     At class-level, sweet instances support common HTTP verbs: GET, HEAD, POST,
     PUT, and DELETE. At instance-level, however, sweet instance support GET and
@@ -283,10 +296,21 @@ class Sweet(object):
         # would become 'create'. Any spaces found in action names will be
         # converted to underscores, so an action name of 'Save this' would be
         # converted to 'save_this'.
-        action_re = re.compile(r'[a-z][\w- ]*', re.IGNORECASE)
-        if all([not action_re.match(obj._i.action),
+        if all([not obj._i.action.startswith('_'),
                 obj._i.action not in obj.allowed_methods]):
-            obj._a = obj._i.action.lower().replace(' ', '_')
+            non_ascii_re = re.compile(r'[^\w-]', re.UNICODE)
+            action_re = re.compile(r'[a-z][\w-]*')
+            # get current locale (if set)
+            locale = web.ctx.get('current_locale')
+            # slugify the action name
+            action = slugify(obj._i.action, locales=locale, spacer='_')
+            # strip any non-ascii characters, just in case
+            action = non_ascii_re.sub('', action)
+            # do we have the winner?
+            if action and action_re.match(action):
+                obj._a = action
+            else:
+                obj._a = 'default'
         else:
             obj._a = 'default'
 
