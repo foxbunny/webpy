@@ -4,32 +4,6 @@ __all__ = [
     'sweet', 'accepts', 'ajax',
 ]
 
-class accepts(object):
-    """ Request method decorator
-
-    Adds the ``accepts`` attribute to a method.
-
-    """
-    def __init__(self, methods=None):
-        self.methods = methods
-
-    def __call__(self, f):
-        if self.methods:
-            f.accepts = self.methods
-        return f
-
-class ajax(object):
-    """ AJAX response deocrator
-
-    Adds ``ajax`` attribute to a method.
-
-    """
-    def __init__(self, respond=True):
-        self.respond = respond
-
-    def __call__(self, f):
-        f.ajax = self.respond
-        return f
 
 class Sweet(object):
     """ Abstraction layer for web.py controller.
@@ -39,15 +13,97 @@ class Sweet(object):
     in all requests. If none is received, the default value of ``default`` is
     used.
 
-    All actions must have a corresponding method. If no method is found for a
+    Before delving deeper into how all of this is put together, we'll discuss
+    a small example class:
+
+        from web.contrib.sweet import sweet
+
+        class index(sweet):
+            def __init__(self):
+                self.pages = [1, 2, 3, 4, 5]
+
+            def default(self):
+                return 'No action'
+
+            def page_list(self):
+                return self.pages
+
+            def add(self):
+                page = int(self._i.page)
+                if not int(page) in self.pages:
+                    pages.append(page)
+
+            def preview(self):
+                page = int(self._i.page)
+                if not int(page) in self.pages:
+                    pages_preview = self.pages
+                    pages_preview.appen(page)
+                    return pages_preview
+                else:
+                    return self.pages
+
+        # URL mapping
+
+        urls = ('/index', 'index')
+
+        # form for the above controller:
+
+        <form action="/index" method="post">
+            <input name="page" type="text" />
+            <input name="action" value="add" type="submit" />
+            <input name="action" value="preview" type="submit" />
+        </form>
+
+    This is a simplified example, which can, of course, be made more robust
+    by various mechanisms discussed below. We have a simple list of integers,
+    and the ``page_list`` will return this list. If you direct your browser to
+    ``/index`` URL, however, you will only see ``No action``. That's because
+    there was no action specified, and the ``default`` method was called instead
+    of ``page_list``. To cause ``page_list`` to be called, you need to visit
+    ``/index?action=page_list``.
+
+    Now, using the form presented above, you can submit pages to the ``index``
+    class. You see there are two submit buttons with a name of ``action``. They
+    have different values corresponding to the names of the methods in the
+    ``index`` class. Yes, you've guessed it right. Each one triggers the
+    matching method. ``add`` button will call the ``add`` method, which adds the
+    submitted page to the list, and ``preview`` will only do a dry run so you
+    can see the results.
+
+    If you add a third button to the form, with the ``value`` attribute of
+    ``foo``, and click that, you'd receive a ``No action`` page. That's because
+    there is no corresponding method in the ``index`` class, and therefore
+    ``default`` gets called instead.
+
+    All actions should have a corresponding method. If no method is found for a
     given action, the ``_unhandled`` method is called. By default, this method
     calls the ``default`` method, which raises a ``NotImplementedError``
     exception by default, and it is thus suggested that you override ``default``
     with a more meaningful output. The ``default`` method acts sort of like a
     catch-all method.
 
-    Actions whose name begins with an underscore are ignored. Therefore, all
-    private non-action methods should have an underscore prefix.
+    You can also override the ``default`` to method to delegate all POST 
+    requests to, say, ``_post_default``, and GET requests to, say, 
+    ``_get_default``, by using the ``self._method`` attribute. Here's an 
+    example:
+    
+        class index(sweet):
+            def default(self):
+                if self._method == 'GET':
+                    return self._get_default()
+                else:
+                    return self._post_default()
+                    
+            def _get_default(self):
+                # do something
+                
+            def _post_default(self):
+                # do something else
+                
+    Note that we've prepended an underscore to the names of the two methods.
+    This is done to prevent these methods from handling actions. Actions whose
+    name begins with an underscore are ignored. Therefore, all private
+    non-action methods should have an underscore prefix.
 
     At class-level, sweet instances support common HTTP verbs: GET, HEAD, POST,
     PUT, and DELETE. At instance-level, however, sweet instance support GET and
@@ -88,12 +144,54 @@ class Sweet(object):
 
     Request type names for the ``accepts`` attribute are case sensitive.
 
+    A more convenient way to do the above is to use the accepts decorator
+    provided in the sweet module. Here's an example of the above index class
+    using the decorator:
+
+        from web.contrib.sweet import accepts
+
+        @accepts(['POST', 'GET'])
+        class index(sweet):
+            def item(self):
+                pass
+
+    The main difference between the ``accepts`` method attribute (or decorator)
+    and the ``allowed_method`` class attribute is that the method attribute
+    restricts an action to certain verbs, but does not reject the unsupported
+    verbs, whereas the ``allowed_method`` returns a HTTP 405 just on seeing a
+    unsupported verb. Here's an example to illustrate this:
+
+        class index(sweet):
+            allowed_methods = ['GET', 'POST']
+            def default(self):
+                # show a list of blog posts
+
+            @accepts('GET')
+            def archive(self):
+                # show the blog archive
+
+            @accepts('POST')
+            def new_post(self)
+
+    In the above snippet, we have an index class that accepts both GET and POST
+    verbs. This is because we handle both creation of a new post, and retrieving
+    a list of blog posts. However, the methods ``archive`` and ``new_post`` will
+    only respond to one verb each (GET and POST respectively). If a POST request
+    is made to ``archive``, the ``default`` method will be called. If a GET
+    request is sent to ``new_post``, again, the ``default`` method will be
+    called. However, if we send a PUT request to our index class, the
+    ``web.nomethod`` exception will be raised and no method will be called.
+
+    Also note that using the decorator without any arguments will not raise any
+    exceptions. However, if you don't pass any arguments, the decorator will
+    have no effect on the method, and it will accept any HTTP verb as a result.
+
     Every instance also has an ``_is_ajax`` attribute that contains the contents
     of the 'HTTP_X_REQUESTED_WITH' header. If this header was set by the client,
     it usually means that the request was made as an AJAX call. This does not
     work with JavaScript code that does not set this header. If you want to use
     the ``_is_ajax`` attribute, set this header manually. Most well-established
-    JavaScript frameworks (e.g, Prototype, jQuery, MooTools, at al) use this
+    JavaScript frameworks (e.g, Prototype, jQuery, MooTools, et al) use this
     header.
 
     You can mark a method as handling either only AJAX calls, or no AJAX calls.
@@ -112,18 +210,16 @@ class Sweet(object):
     handle AJAX calls or it won't. If you want your method to be less
     restrictive, simply remove the ``ajax`` attribute.
 
-    Both ``accepts`` and ``ajax`` can be set using decorators for convenience.
-    Here's an example using both:
+    As with the ``accepts`` attribute, ``ajax`` attribute has its matching
+    deccorator. Here is an example using the decorator:
 
         class index(sweet):
             @ajax
-            @accepts('POST')
             def validate(self):
                 pass
 
     If you add the ``ajax`` decorator without any arguments, the ``ajax``
-    attribute will be set to true. The ``accepts`` decorator without any
-    arguments has no effect on the method.
+    attribute will be set to true.
 
     Any parameters that are received via URL parameters are stored in ``_q``
     property. Also, all request parameters (the ones you can access via
@@ -302,6 +398,42 @@ class Sweet(object):
 
 
 sweet = Sweet
+
+
+class Accepts(object):
+    """ Request method decorator
+
+    Adds the ``accepts`` attribute to a method.
+
+    """
+    def __init__(self, methods=None):
+        self.methods = methods
+
+    def __call__(self, f):
+        if self.methods:
+            f.accepts = self.methods
+        return f
+
+
+accepts = Accepts
+
+
+class Ajax(object):
+    """ AJAX response deocrator
+
+    Adds ``ajax`` attribute to a method.
+
+    """
+    def __init__(self, respond=True):
+        self.respond = respond
+
+    def __call__(self, f):
+        f.ajax = self.respond
+        return f
+
+
+ajax = Ajax
+
 
 if __name__ == '__main__':
     # Example application:
