@@ -4,32 +4,6 @@ __all__ = [
     'sweet', 'accepts', 'ajax',
 ]
 
-class accepts(object):
-    """ Request method decorator
-
-    Adds the ``accepts`` attribute to a method.
-
-    """
-    def __init__(self, methods=None):
-        self.methods = methods
-
-    def __call__(self, f):
-        if self.methods:
-            f.accepts = self.methods
-        return f
-
-class ajax(object):
-    """ AJAX response deocrator
-
-    Adds ``ajax`` attribute to a method.
-
-    """
-    def __init__(self, respond=True):
-        self.respond = respond
-
-    def __call__(self, f):
-        f.ajax = self.respond
-        return f
 
 class Sweet(object):
     """ Abstraction layer for web.py controller.
@@ -302,6 +276,42 @@ class Sweet(object):
 
 
 sweet = Sweet
+
+
+class Accepts(object):
+    """ Request method decorator
+
+    Adds the ``accepts`` attribute to a method.
+
+    """
+    def __init__(self, methods=None):
+        self.methods = methods
+
+    def __call__(self, f):
+        if self.methods:
+            f.accepts = self.methods
+        return f
+
+
+accepts = Accepts
+
+
+class Ajax(object):
+    """ AJAX response deocrator
+
+    Adds ``ajax`` attribute to a method.
+
+    """
+    def __init__(self, respond=True):
+        self.respond = respond
+
+    def __call__(self, f):
+        f.ajax = self.respond
+        return f
+
+
+ajax = Ajax
+
 
 if __name__ == '__main__':
     # Example application:
