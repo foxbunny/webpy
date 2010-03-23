@@ -62,12 +62,54 @@ class Sweet(object):
 
     Request type names for the ``accepts`` attribute are case sensitive.
 
+    A more convenient way to do the above is to use the accepts decorator
+    provided in the sweet module. Here's an example of the above index class
+    using the decorator:
+
+        from web.contrib.sweet import accepts
+
+        @accepts(['POST', 'GET'])
+        class index(sweet):
+            def item(self):
+                pass
+
+    The main difference between the ``accepts`` method attribute (or decorator)
+    and the ``allowed_method`` class attribute is that the method attribute
+    restricts an action to certain verbs, but does not reject the unsupported
+    verbs, whereas the ``allowed_method`` returns a HTTP 405 just on seeing a
+    unsupported verb. Here's an example to illustrate this:
+
+        class index(sweet):
+            allowed_methods = ['GET', 'POST']
+            def default(self):
+                # show a list of blog posts
+
+            @accepts('GET')
+            def archive(self):
+                # show the blog archive
+
+            @accepts('POST')
+            def new_post(self)
+
+    In the above snippet, we have an index class that accepts both GET and POST
+    verbs. This is because we handle both creation of a new post, and retrieving
+    a list of blog posts. However, the methods ``archive`` and ``new_post`` will
+    only respond to one verb each (GET and POST respectively). If a POST request
+    is made to ``archive``, the ``default`` method will be called. If a GET
+    request is sent to ``new_post``, again, the ``default`` method will be
+    called. However, if we send a PUT request to our index class, the
+    ``web.nomethod`` exception will be raised and no method will be called.
+
+    Also note that using the decorator without any arguments will not raise any
+    exceptions. However, if you don't pass any arguments, the decorator will
+    have no effect on the method, and it will accept any HTTP verb as a result.
+
     Every instance also has an ``_is_ajax`` attribute that contains the contents
     of the 'HTTP_X_REQUESTED_WITH' header. If this header was set by the client,
     it usually means that the request was made as an AJAX call. This does not
     work with JavaScript code that does not set this header. If you want to use
     the ``_is_ajax`` attribute, set this header manually. Most well-established
-    JavaScript frameworks (e.g, Prototype, jQuery, MooTools, at al) use this
+    JavaScript frameworks (e.g, Prototype, jQuery, MooTools, et al) use this
     header.
 
     You can mark a method as handling either only AJAX calls, or no AJAX calls.
@@ -86,18 +128,16 @@ class Sweet(object):
     handle AJAX calls or it won't. If you want your method to be less
     restrictive, simply remove the ``ajax`` attribute.
 
-    Both ``accepts`` and ``ajax`` can be set using decorators for convenience.
-    Here's an example using both:
+    As with the ``accepts`` attribute, ``ajax`` attribute has its matching
+    deccorator. Here is an example using the decorator:
 
         class index(sweet):
             @ajax
-            @accepts('POST')
             def validate(self):
                 pass
 
     If you add the ``ajax`` decorator without any arguments, the ``ajax``
-    attribute will be set to true. The ``accepts`` decorator without any
-    arguments has no effect on the method.
+    attribute will be set to true.
 
     Any parameters that are received via URL parameters are stored in ``_q``
     property. Also, all request parameters (the ones you can access via
