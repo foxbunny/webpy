@@ -27,7 +27,8 @@ __all__ = [
   "autoassign",
   "to36",
   "safemarkdown",
-  "sendmail"
+  "sendmail",
+  "findbyprefix"
 ]
 
 import re, sys, time, threading, itertools, traceback, os, cgi, glob
