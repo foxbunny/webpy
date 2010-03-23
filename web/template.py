@@ -39,7 +39,7 @@ import tokenize
 import os
 import re
 
-from utils import storage, safeunicode, safestr, re_compile, findfile
+from utils import storage, safeunicode, safestr, re_compile, findbyprefix
 from webapi import config
 from net import websafe
 
