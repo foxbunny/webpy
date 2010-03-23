@@ -1649,7 +1649,7 @@ def transliterate(s, transpairs):
         s = translit_re.sub(unicode(transpairs.get(key, '')), unicode(s))
     return s
 
-def slugify(s, locales=[], exclude_locales=[], spacer='_', max_length=0):
+def slugify(s, locales=[], exclude_locales=[], spacer=None, max_length=0):
     """Convert ``str`` to a URL-friendly string
 
     ``s`` is a unicode string to be converted
@@ -1688,8 +1688,8 @@ def slugify(s, locales=[], exclude_locales=[], spacer='_', max_length=0):
     locales = locales or web.config.get('slug_locales') or TRANS_PAIRS.keys()
     if not hasattr(locales, '__iter__'):
         locales = [str(locales)]
-    spacer = web.config.get('slug_spacer') or spacer
-    max_length = web.config.get('slug_max_length', max_length)
+    spacer = spacer or web.config.get('slug_spacer', '_')
+    max_length = max_length or web.config.get('slug_max_length', 0)
 
     if exclude_locales:
         for locale in exclude_locales:
