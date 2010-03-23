@@ -1660,6 +1660,15 @@ def slugify(s, locales=[], exclude_locales=[], spacer=None, max_length=0):
 
     If ``max_length`` is 0, the whole slug is returned.
 
+    There are three configuration options for slugify:
+
+    ``slug_locales``: default set of locales used for transliteration
+    ``slug_spacer``: default spacer character
+    ``slug_max_length``: default maximum length
+
+    These configuration options can be overriden by arguments passed directly
+    to slugify.
+
     Returns a *unicode* string.
 
     Examples:
