@@ -1,3 +1,5 @@
+import re
+
 import web
 
 __all__ = [
@@ -104,6 +106,14 @@ class Sweet(object):
     This is done to prevent these methods from handling actions. Actions whose
     name begins with an underscore are ignored. Therefore, all private
     non-action methods should have an underscore prefix.
+
+    A note about action names. You can only use action names that begin with a
+    letter, and contain letters (A-Z), numbers (0-9), dashes (-) and underscores
+    (_). You can mix lower-case and upper-case letters, but all letters will be
+    converted to lower-case, so your method names should use lower-case letters
+    only. As of this moment, only English alphabet is supported. Future versions
+    of sweet class will make use of slugize tools (planned for inclusion in
+    web.py-fox 0.34.2fox) to convert non-English characters.
 
     At class-level, sweet instances support common HTTP verbs: GET, HEAD, POST,
     PUT, and DELETE. At instance-level, however, sweet instance support GET and
@@ -269,9 +279,14 @@ class Sweet(object):
         # You can use a hidden form field for this. Default action is
         # ``default``, and you should at least define a ``default``
         # method. Actions whose names begin with an underscore are ignored.
-        if all([not obj._i.action.startswith('_'),
+        # All action names are converted to lower case. For example, 'Create'
+        # would become 'create'. Any spaces found in action names will be
+        # converted to underscores, so an action name of 'Save this' would be
+        # converted to 'save_this'.
+        action_re = re.compile(r'[a-z][\w- ]*', re.IGNORECASE)
+        if all([not action_re.match(obj._i.action),
                 obj._i.action not in obj.allowed_methods]):
-            obj._a = obj._i.action
+            obj._a = obj._i.action.lower().replace(' ', '_')
         else:
             obj._a = 'default'
 
