@@ -13,15 +13,97 @@ class Sweet(object):
     in all requests. If none is received, the default value of ``default`` is
     used.
 
-    All actions must have a corresponding method. If no method is found for a
+    Before delving deeper into how all of this is put together, we'll discuss
+    a small example class:
+
+        from web.contrib.sweet import sweet
+
+        class index(sweet):
+            def __init__(self):
+                self.pages = [1, 2, 3, 4, 5]
+
+            def default(self):
+                return 'No action'
+
+            def page_list(self):
+                return self.pages
+
+            def add(self):
+                page = int(self._i.page)
+                if not int(page) in self.pages:
+                    pages.append(page)
+
+            def preview(self):
+                page = int(self._i.page)
+                if not int(page) in self.pages:
+                    pages_preview = self.pages
+                    pages_preview.appen(page)
+                    return pages_preview
+                else:
+                    return self.pages
+
+        # URL mapping
+
+        urls = ('/index', 'index')
+
+        # form for the above controller:
+
+        <form action="/index" method="post">
+            <input name="page" type="text" />
+            <input name="action" value="add" type="submit" />
+            <input name="action" value="preview" type="submit" />
+        </form>
+
+    This is a simplified example, which can, of course, be made more robust
+    by various mechanisms discussed below. We have a simple list of integers,
+    and the ``page_list`` will return this list. If you direct your browser to
+    ``/index`` URL, however, you will only see ``No action``. That's because
+    there was no action specified, and the ``default`` method was called instead
+    of ``page_list``. To cause ``page_list`` to be called, you need to visit
+    ``/index?action=page_list``.
+
+    Now, using the form presented above, you can submit pages to the ``index``
+    class. You see there are two submit buttons with a name of ``action``. They
+    have different values corresponding to the names of the methods in the
+    ``index`` class. Yes, you've guessed it right. Each one triggers the
+    matching method. ``add`` button will call the ``add`` method, which adds the
+    submitted page to the list, and ``preview`` will only do a dry run so you
+    can see the results.
+
+    If you add a third button to the form, with the ``value`` attribute of
+    ``foo``, and click that, you'd receive a ``No action`` page. That's because
+    there is no corresponding method in the ``index`` class, and therefore
+    ``default`` gets called instead.
+
+    All actions should have a corresponding method. If no method is found for a
     given action, the ``_unhandled`` method is called. By default, this method
     calls the ``default`` method, which raises a ``NotImplementedError``
     exception by default, and it is thus suggested that you override ``default``
     with a more meaningful output. The ``default`` method acts sort of like a
     catch-all method.
 
-    Actions whose name begins with an underscore are ignored. Therefore, all
-    private non-action methods should have an underscore prefix.
+    You can also override the ``default`` to method to delegate all POST 
+    requests to, say, ``_post_default``, and GET requests to, say, 
+    ``_get_default``, by using the ``self._method`` attribute. Here's an 
+    example:
+    
+        class index(sweet):
+            def default(self):
+                if self._method == 'GET':
+                    return self._get_default()
+                else:
+                    return self._post_default()
+                    
+            def _get_default(self):
+                # do something
+                
+            def _post_default(self):
+                # do something else
+                
+    Note that we've prepended an underscore to the names of the two methods.
+    This is done to prevent these methods from handling actions. Actions whose
+    name begins with an underscore are ignored. Therefore, all private
+    non-action methods should have an underscore prefix.
 
     At class-level, sweet instances support common HTTP verbs: GET, HEAD, POST,
     PUT, and DELETE. At instance-level, however, sweet instance support GET and
