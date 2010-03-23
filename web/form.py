@@ -301,7 +301,7 @@ class Radio(Input):
 </span>'
 
     """
-    def __init__(self, name, args, *validators, vertical=False, **attrs):
+    def __init__(self, name, args, vertical=False, *validators, **attrs):
         self.args = args
         self.vertical = vertical
         super(Radio, self).__init__(name, *validators, **attrs)
