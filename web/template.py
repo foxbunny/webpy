@@ -38,6 +38,7 @@ __all__ = [
 import tokenize
 import os
 import re
+from UserDict import DictMixin
 
 from utils import storage, safeunicode, safestr, re_compile, findbyprefix
 from webapi import config
@@ -517,12 +518,12 @@ class DefwithNode:
     def __init__(self, defwith, suite):
         if defwith:
             self.defwith = defwith.replace('with', '__template__') + ':'
-            # offset 3 lines. for __lineoffset__, loop and self.
-            self.defwith += "\n    __lineoffset__ = -3"
+            # offset 4 lines. for encoding, __lineoffset__, loop and self.
+            self.defwith += "\n    __lineoffset__ = -4"
         else:
             self.defwith = 'def __template__():'
-            # offset 4 lines for __template__, __lineoffset__, loop and self.
-            self.defwith += "\n    __lineoffset__ = -4"
+            # offset 4 lines for encoding, __template__, __lineoffset__, loop and self.
+            self.defwith += "\n    __lineoffset__ = -5"
 
         self.defwith += "\n    loop = ForLoop()"
         self.defwith += "\n    self = TemplateResult(); extend_ = self.extend"
@@ -530,7 +531,8 @@ class DefwithNode:
         self.end = "\n    return self"
 
     def emit(self, indent):
-        return self.defwith + self.suite.emit(indent + INDENT) + self.end
+        encoding = "# encoding: utf-8\n"
+        return encoding + self.defwith + self.suite.emit(indent + INDENT) + self.end
 
     def __repr__(self):
         return "<defwith: %s, %s>" % (self.defwith, self.suite)
@@ -589,7 +591,7 @@ class LineNode:
     def __repr__(self):
         return "<line: %s>" % repr(self.nodes)
 
-INDENT = u'    ' # 4 spaces
+INDENT = '    ' # 4 spaces
         
 class BlockNode:
     def __init__(self, stmt, block, begin_indent=''):
@@ -981,7 +983,14 @@ class Render:
             self._base = lambda page: self._template(base)(page)
         else:
             self._base = base
-            
+    
+    def _add_global(self, obj, name=None):
+        """Add a global to this rendering instance."""
+        if 'globals' not in self._keywords: self._keywords['globals'] = {}
+        if not name:
+            name = obj.__name__
+        self._keywords['globals'][name] = obj
+    
     def _lookup(self, name):
         path = os.path.join(self._loc, name)
         if os.path.isdir(path):
@@ -1076,10 +1085,6 @@ def compile_templates(root):
         out.write('from web.template import CompiledTemplate, ForLoop, TemplateResult\n\n')
         if dirnames:
             out.write("import " + ", ".join(dirnames))
-    
-        out.write("_dummy = CompiledTemplate(lambda: None, 'dummy')\n")
-        out.write("join_ = _dummy._join\n")
-        out.write("escape_ = _dummy._escape\n")
         out.write("\n")
 
         for f in filenames:
@@ -1095,6 +1100,10 @@ def compile_templates(root):
             code = Template.generate_code(text, path)
 
             code = code.replace("__template__", name, 1)
+            
+            # inject "join_ = ..; escape_ = .." into the code. 
+            # That is required to make escape functionality work correctly.
+            code = code.replace("\n", "\n    join_ = %s._join; escape_ = %s._escape\n" % (name, name), 1)
 
             out.write(code)
 
@@ -1213,7 +1222,7 @@ class SafeVisitor(object):
         e = SecurityError("%s:%d - execution of '%s' statements is denied" % (self.filename, lineno, nodename))
         self.errors.append(e)
 
-class TemplateResult(storage):
+class TemplateResult(storage, DictMixin):
     """Dictionary like object for storing template output.
     
     A template can specify key-value pairs in the output using 
@@ -1235,7 +1244,7 @@ class TemplateResult(storage):
         storage.__init__(self, *a, **kw)
         self.setdefault("__body__", None)
 
-        # avoiding self._data because add it as self["_data"]
+        # avoiding self._data because it adds as item instead of attr.
         self.__dict__["_data"] = []
         self.__dict__["extend"] = self._data.extend
 
