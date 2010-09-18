@@ -7,6 +7,11 @@ __all__ = [
     'sweet', 'accepts', 'ajax',
 ]
 
+def dprint(msg):
+    """ Prints a debug message if debug flag is set """
+    if web.config.debug:
+        print msg
+
 
 class Sweet(object):
     """ Abstraction layer for web.py controller.
@@ -314,8 +319,12 @@ class Sweet(object):
         else:
             obj._a = 'default'
 
+        dprint('SWEET: action name is %s' % obj._a)
+
         # ``_is_ajax`` stores the value of ``HTTP_X_REQUESTED_WITH`` header
         obj._is_ajax = web.ctx.env.get('HTTP_X_REQUESTED_WITH')
+
+        dprint('SWEET: is ajax %s' % (obj._is_ajax and true))
 
         # Call post-configuration method
         obj._init()
@@ -348,6 +357,7 @@ class Sweet(object):
         meaningful function.
 
         """
+        dprint('SWEET: action %s is unhandled, falling back to default' % self._a)
         return self.default()
 
     def _handle(self, *args):
@@ -368,13 +378,16 @@ class Sweet(object):
             return self._unhandled(*args)
         # Hands over to method that corresponds to action name
         method = getattr(self, self._a)
+        dprint('SWEET: the handler method is %r' % method)
         # Do not handle methods that are not callable.
         if not hasattr(method, '__call__'):
+            dprint('SWEET: handler method not callable, falling back on default')
             return self._unhandled(*args)
         # Do not handle AJAX calls if method does not accept it, or AJAX calls
         # made to methods that only handle AJAX.
         if (hasattr(method, 'ajax') and self._is_ajax and not method.ajax) or \
           (hasattr(method, 'ajax') and not self._is_ajax and method.ajax):
+            dprint('SWEET: this method does not accept AJAX calls')
             return self._unhandled(*args)
         # Do not handle method if it is not accepted by method.
         if hasattr(method, 'accepts'):
@@ -382,8 +395,10 @@ class Sweet(object):
               self._method in method.accepts) or \
               not (isinstance(method.accepts, str) and \
               self._method == method.accepts):
+                dprint('SWEET: method is right, but HTTP verb %s is not accepted' % self._method)
                 return self._unhandled(*args)
-        return getattr(self, self._a)(*args)
+        dprint('SWEET: calling method %s with args %s' % (method, args))
+        return method(*args)
 
     def GET(self, *args):
         """ Default GET method.
