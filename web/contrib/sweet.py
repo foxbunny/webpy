@@ -391,14 +391,14 @@ class Sweet(object):
             return self._unhandled(*args)
         # Do not handle method if it is not accepted by method.
         if hasattr(method, 'accepts'):
-            if not (hasattr(method.accepts, '__iter__') and \
+            dprint('SWEET: method %s accepts following verbs: %s' % (method, method.accepts))
+            if (hasattr(method.accepts, '__iter__') and \
               self._method in method.accepts) or \
-              not (isinstance(method.accepts, str) and \
-              self._method == method.accepts):
-                dprint('SWEET: method is right, but HTTP verb %s is not accepted' % self._method)
-                return self._unhandled(*args)
-        dprint('SWEET: calling method %s with args %s' % (method, args))
-        return method(*args)
+              self._method == method.accepts:
+                dprint('SWEET: calling method %s with args %s' % (method, args))
+                return method(*args)
+        dprint('SWEET: method is right, but HTTP verb %s is not accepted' % self._method)
+        return self._unhandled(*args)
 
     def GET(self, *args):
         """ Default GET method.
@@ -466,6 +466,7 @@ class Accepts(object):
     def __call__(self, f):
         if self.methods:
             f.accepts = self.methods
+            dprint('SWEET: added accepts to %s with verbs %s' % (f, f.accepts))
         return f
 
 
