@@ -33,30 +33,30 @@ zip_code_re = re.compile(r'^\d{5}$')
 zip4_code_re = re.compile(r'^\d{5}-\d{4}$')
 
 alphanum = form.Validator(_('Please use only letters and numbers.'),
-                          alnum_re.match)
+                          lambda x: not x or alnum_re.match(x))
 alphanum_path = form.Validator(_('Please enter a valid relative path.'),
-                               alnumurl_re.match)
+                               lambda x: not x or alnumurl_re.match(x))
 ansi_date = form.Validator(_('Please enter a valid ANSI date.'),
-                           ansi_date_re.match)
+                           lambda x: not x or ansi_date_re.match(x))
 ansi_time = form.Validator(_('Please enter a valid ANSI time.'),
-                           ansi_time_re.match)
+                           lambda x: not x or ansi_time_re.match(x))
 ansi_datetime_re = form.Validator(_('Please enter valid ANSI date and time.'),
-                                  ansi_datetime_re.match)
+                                  lambda x: not x or ansi_datetime_re.match(x))
 email = form.Validator(_('Please enter a valid e-mail.'),
-                       email_re.match)
+                       lambda x: not x or email_re.match(x))
 integer = form.Validator(_('Please enter an integer value.'),
-                         integer_re.match)
+                         lambda x: not x or integer_re.match(x))
 ip4 = form.Validator(_('Please enter a valid IP address.'),
-                     ip4_re.match)
+                     lambda x: not x or ip4_re.match(x))
 phone = form.Validator(_('Please enter a valid phone number.'),
-                       phone_re.match)
+                       lambda x: not x or phone_re.match(x))
 slug = form.Validator(_('Please enter a valid slug.'),
-                      slug_re.match)
+                      lambda x: not x or slug_re.match(x))
 url = form.Validator(_('Please enter a valid URL.'),
-                        url_re.match)
+                     lambda x: not x or url_re.match(x))
 zip_code = form.Validator(_('Please enter a valid United States ZIP code.'),
-                          zip_code_re.match)
+                          lambda x: not x or zip_code_re.match(x))
 zip4_code = form.Validator(_('Please enter a valid United States ZIP+4 code.'),
-                           zip4_code_re.match)
+                           lambda x: not x or zip4_code_re.match(x))
 
 
