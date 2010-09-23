@@ -9,7 +9,7 @@ http://code.djangoproject.com/browser/django/trunk/django/core/validators.py?rev
 """
 
 import re
-from gettext import ugettext as _
+from gettext import gettext as _
 
 from web import form
 
