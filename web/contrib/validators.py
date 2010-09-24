@@ -42,19 +42,19 @@ def max_len(length, msg=None):
 
 def min_len(length, msg=None):
     return form.Validator(msg or _('This field requires at least %s characters.' % length),
-                          lambda x: len(x) >= length)
+                          lambda x: x and len(x) >= length or True)
 
 def ex_len(length, msg=None):
     return form.Validator(msg or _('This field must be exactly %s characters long.' % length),
-                          lambda x: len(x) == length)
+                          lambda x: x and len(x) == length or True)
 
 def max_val(value, msg=None):
     return form.Validator(msg or _('This field must be less than or equal to %s.' % value),
-                          lambda x: x <= value)
+                          lambda x: x and x <= value or True)
 
 def min_val(value, msg=None):
     return form.Validator(msg or _('This field must be equal to or more than %s.' % value),
-                          lambda x: x >= value)
+                          lambda x: x and x >= value or True)
 
 alphanum = form.Validator(_('Please use only letters and numbers.'),
                           lambda x: not x or alnum_re.match(x))
