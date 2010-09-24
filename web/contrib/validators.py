@@ -32,10 +32,6 @@ url_re = re.compile(r'^https?://\S+$')
 zip_code_re = re.compile(r'^\d{5}$')
 zip4_code_re = re.compile(r'^\d{5}-\d{4}$')
 
-def dropdown_v(ddlist, msg=None):
-    return form.Validator(msg or _('Please use the drop down control.'),
-                          lambda x: x in [i[0] for i in ddlist])
-
 def max_len(length, msg=None):
     return form.Validator(msg or _('This field is limited to %s characters.' % length),
                           lambda x: len(x) <= length)
@@ -55,6 +51,14 @@ def max_val(value, msg=None):
 def min_val(value, msg=None):
     return form.Validator(msg or _('This field must be equal to or more than %s.' % value),
                           lambda x: x and x >= value or True)
+
+def enum(lst, msg=None):
+    return form.Validator(msg or _('That value is not allowed.'),
+                          lambda x: x in lst)
+
+def dropdown(ddlist, msg=None):
+    return enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
+
 
 alphanum = form.Validator(_('Please use only letters and numbers.'),
                           lambda x: not x or alnum_re.match(x))
