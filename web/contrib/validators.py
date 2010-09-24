@@ -36,6 +36,26 @@ def dropdown_v(ddlist, msg=None):
     return form.Validator(msg or _('Please use the drop down control.'),
                           lambda x: x in [i[0] for i in ddlist])
 
+def max_len(length, msg=None):
+    return form.Validator(msg or _('This field is limited to %s characters.' % length),
+                          lambda x: len(x) <= length)
+
+def min_len(length, msg=None):
+    return form.Validator(msg or _('This field requires at least %s characters.' % length),
+                          lambda x: len(x) >= length)
+
+def ex_len(length, msg=None):
+    return form.Validator(msg or _('This field must be exactly %s characters long.' % length),
+                          lambda x: len(x) = length)
+
+def max_val(value, msg=None):
+    return form.Validator(msg or _('This field must be less than or equal to %s.' % value),
+                          lambda x: x <= value)
+
+def min_val(value, msg=None):
+    return form.Validator(msg or _('This field must be equal to or more than %s.' % value),
+                          lambda x: x >= value)
+
 alphanum = form.Validator(_('Please use only letters and numbers.'),
                           lambda x: not x or alnum_re.match(x))
 alphanum_path = form.Validator(_('Please enter a valid relative path.'),
