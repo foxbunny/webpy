@@ -247,7 +247,7 @@ class Sweet(object):
                 pass
 
     If you add the ``ajax`` decorator without any arguments, the ``ajax``
-    attribute will be set to true.
+    attribute will be set to ``True``.
 
     Any parameters that are received via URL parameters are stored in ``_q``
     property. Also, all request parameters (the ones you can access via
@@ -324,7 +324,7 @@ class Sweet(object):
         # ``_is_ajax`` stores the value of ``HTTP_X_REQUESTED_WITH`` header
         obj._is_ajax = web.ctx.env.get('HTTP_X_REQUESTED_WITH')
 
-        dprint('SWEET: is ajax %s' % (obj._is_ajax and true))
+        dprint('SWEET: is ajax %s' % (obj._is_ajax and True))
 
         # Call post-configuration method
         obj._init()
