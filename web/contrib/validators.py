@@ -32,6 +32,10 @@ url_re = re.compile(r'^https?://\S+$')
 zip_code_re = re.compile(r'^\d{5}$')
 zip4_code_re = re.compile(r'^\d{5}-\d{4}$')
 
+def dropdown_v(ddlist, msg=None):
+    return form.Validator(msg or _('Please use the drop down control.'),
+                          lambda x: x in [i[0] for i in ddlist])
+
 alphanum = form.Validator(_('Please use only letters and numbers.'),
                           lambda x: not x or alnum_re.match(x))
 alphanum_path = form.Validator(_('Please enter a valid relative path.'),
@@ -58,5 +62,5 @@ zip_code = form.Validator(_('Please enter a valid United States ZIP code.'),
                           lambda x: not x or zip_code_re.match(x))
 zip4_code = form.Validator(_('Please enter a valid United States ZIP+4 code.'),
                            lambda x: not x or zip4_code_re.match(x))
-
-
+required = form.Validator(_('This field is required'),
+                          bool)
