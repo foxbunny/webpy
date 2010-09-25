@@ -292,21 +292,21 @@ to customize the error message (this is not the case with non-parametric
 validators, but it will change in near future). Following is a list of such 
 validators currently included in the validators module:
 
-    * ``max_len`` (length[, msg]): Ensures that fields contain less than or
-      equal to ``length`` characters.
-    * ``min_len`` (length[, msg]): Ensures that fields contain a minimum of
-      ``length`` characters.
-    * ``ex_len`` (length[, msg]): Ensures that fields contain exactly
-      ``length`` characters.
-    * ``max_val`` (value[, msg]): Ensures that the fields' value is less than
-      or equal to value.
-    * ``min_val`` (value[, msg]): Ensures that fields' value is equal to or
-      more than the ``value``.
-    * ``enum`` (list[, msg]): Ensures that the contents of fields match one of
-      the elements in the specified ``list``.
-    * ``dropdown`` (ddlist[, msg]): Given a list of 2-tuples such as those used
-      for ``form.Dropdown`` fields, it ensures that fields' contain one of the
-      allwed values.
+* ``max_len`` (length[, msg]): Ensures that fields contain less than or
+  equal to ``length`` characters.
+* ``min_len`` (length[, msg]): Ensures that fields contain a minimum of
+  ``length`` characters.
+* ``ex_len`` (length[, msg]): Ensures that fields contain exactly
+  ``length`` characters.
+* ``max_val`` (value[, msg]): Ensures that the fields' value is less than
+  or equal to value.
+* ``min_val`` (value[, msg]): Ensures that fields' value is equal to or
+  more than the ``value``.
+* ``enum`` (list[, msg]): Ensures that the contents of fields match one of
+  the elements in the specified ``list``.
+* ``dropdown`` (ddlist[, msg]): Given a list of 2-tuples such as those used
+  for ``form.Dropdown`` fields, it ensures that fields' contain one of the
+  allwed values.
 
 Example:
 
@@ -322,21 +322,21 @@ repository](http://code.djangoproject.com/browser/django/trunk/django/core/valid
 
 Here is a list of available validators:
 
-    * ``alphanum``: Ensures that the field contains only alpha-numeric values.
-    * ``alphanum_path``: Same as alphanum, but allows slashes and underscores.
-    * ``ansi_date``: ANSI/ISO date.
-    * ``ansi_time``: ANSI/ISO time.
-    * ``ansi_datetime``: ANSI/ISO timestamp.
-    * ``email``: Canonical e-mail address (yes, it handles all the weird ones,
-      too).
-    * ``integer``: Integer values.
-    * ``ip4``: IPv4 address.
-    * ``phone``: Phone number (NNN-NNN-NNNN).
-    * ``slug``: Slug URL (alphanum with dashes)
-    * ``url``: URL's that begin with ``http:`` and ``https:``
-    * ``zip_code``: United States 5-digit ZIP codes.
-    * ``zip4_code``: US ZIP+4 code (NNNNN-NNNN).
-    * ``required``: Non-empty value enforcement.
+* ``alphanum``: Ensures that the field contains only alpha-numeric values.
+* ``alphanum_path``: Same as alphanum, but allows slashes and underscores.
+* ``ansi_date``: ANSI/ISO date.
+* ``ansi_time``: ANSI/ISO time.
+* ``ansi_datetime``: ANSI/ISO timestamp.
+* ``email``: Canonical e-mail address (yes, it handles all the weird ones,
+  too).
+* ``integer``: Integer values.
+* ``ip4``: IPv4 address.
+* ``phone``: Phone number (NNN-NNN-NNNN).
+* ``slug``: Slug URL (alphanum with dashes)
+* ``url``: URL's that begin with ``http:`` and ``https:``
+* ``zip_code``: United States 5-digit ZIP codes.
+* ``zip4_code``: US ZIP+4 code (NNNNN-NNNN).
+* ``required``: Non-empty value enforcement.
 
 It has to be noted that none of the specific validators (except ``required``,
 of course) actually enforce non-empty values. The validators will only work if
@@ -350,6 +350,11 @@ Here's an example:
     >>> intf = form.Textbox('numer', v.integer, v.required)
     >>> intf.validate('A') # This is invalid
     >>> intf.validate('') # Now this is also invalid
+
+### Translation of validator messages
+
+All the default messages from all validators are run through gettext and marked
+for translation.
 
 ## Known issues
 
