@@ -68,7 +68,7 @@ ansi_date = form.Validator(_('Please enter a valid ANSI date.'),
                            lambda x: not x or ansi_date_re.match(x))
 ansi_time = form.Validator(_('Please enter a valid ANSI time.'),
                            lambda x: not x or ansi_time_re.match(x))
-ansi_datetime_re = form.Validator(_('Please enter valid ANSI date and time.'),
+ansi_datetime = form.Validator(_('Please enter valid ANSI date and time.'),
                                   lambda x: not x or ansi_datetime_re.match(x))
 email = form.Validator(_('Please enter a valid e-mail.'),
                        lambda x: not x or email_re.match(x))
