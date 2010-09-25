@@ -23,6 +23,11 @@ The fork itself is maintained in the _foxbunny_ branch.
 
 ## Changelog
 
+### 0.34.13fox
+
+* Bugfixes to ``@ajax`` decorator handling in _sweet_ class.
+* Validators module (``web.contrib.validators``)
+
 ### 0.34.12fox
 
 * Fixed a critical bug in _sweet_ class that prevented usage of ``@accepts``
