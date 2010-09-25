@@ -266,6 +266,91 @@ If you don't want the custom method to handle any actions, simply omit the
 ``self._method = ...`` and ``self.handle(...)`` lines, and write your own
 controller code.
 
+## Validators
+
+Foxbunny's web.py ships with a set of predefined validators for use with the
+web.form library. These currently include two groups of validators:
+parameterized generic validators, and regexp-based specific ones. To use the
+validators, you must import the ``web.contrib.validators`` module. Here is an
+example:
+
+    >>> from web import form
+    >>> from web.contrib inport validators as v
+    >>> f = form.Form(
+    >>>     form.Textbox('text', v.required)
+    >>> )
+
+The above will create a form that has a single text field which is required
+(i.e., you must enter a non-null value).
+
+### Parameterized validators
+
+Parameterized validators require you to specify a value for the validator.
+These are usually some limits, just as a maximum value, or minimum length.
+All parameterized validators take an optional parameter ``msg`` that allows you
+to customize the error message (this is not the case with non-parametric
+validators, but it will change in near future). Following is a list of such 
+validators currently included in the validators module:
+
+    * ``max_len`` (length[, msg]): Ensures that fields contain less than or
+      equal to ``length`` characters.
+    * ``min_len`` (length[, msg]): Ensures that fields contain a minimum of
+      ``length`` characters.
+    * ``ex_len`` (length[, msg]): Ensures that fields contain exactly
+      ``length`` characters.
+    * ``max_val`` (value[, msg]): Ensures that the fields' value is less than
+      or equal to value.
+    * ``min_val`` (value[, msg]): Ensures that fields' value is equal to or
+      more than the ``value``.
+    * ``enum`` (list[, msg]): Ensures that the contents of fields match one of
+      the elements in the specified ``list``.
+    * ``dropdown`` (ddlist[, msg]): Given a list of 2-tuples such as those used
+      for ``form.Dropdown`` fields, it ensures that fields' contain one of the
+      allwed values.
+
+Example:
+
+    >>> f = form.Form(
+    >>>         form.Textbox('commission:', v.max_val(80), v.min_val(10))
+
+### Specific validators
+
+Specific validators match field values with a predefined regexp. The regexps
+were taken from Django's validator library. You may see the original source
+code in [Django's SVN
+repository](http://code.djangoproject.com/browser/django/trunk/django/core/validators.py?rev=3305).
+
+Here is a list of available validators:
+
+    * ``alphanum``: Ensures that the field contains only alpha-numeric values.
+    * ``alphanum_path``: Same as alphanum, but allows slashes and underscores.
+    * ``ansi_date``: ANSI/ISO date.
+    * ``ansi_time``: ANSI/ISO time.
+    * ``ansi_datetime``: ANSI/ISO timestamp.
+    * ``email``: Canonical e-mail address (yes, it handles all the weird ones,
+      too).
+    * ``integer``: Integer values.
+    * ``ip4``: IPv4 address.
+    * ``phone``: Phone number (NNN-NNN-NNNN).
+    * ``slug``: Slug URL (alphanum with dashes)
+    * ``url``: URL's that begin with ``http:`` and ``https:``
+    * ``zip_code``: United States 5-digit ZIP codes.
+    * ``zip4_code``: US ZIP+4 code (NNNNN-NNNN).
+    * ``required``: Non-empty value enforcement.
+
+It has to be noted that none of the specific validators (except ``required``,
+of course) actually enforce non-empty values. The validators will only work if
+the field contains any data at all. To ensure that there is a non-empty
+requirement, use the ``required`` validator in conjunction with the others.
+Here's an example:
+
+    >>> intf = form.Textbox('number', v.integer)
+    >>> intf.validate('A') # This is invalid
+    >>> intf.validate('') # This is valid
+    >>> intf = form.Textbox('numer', v.integer, v.required)
+    >>> intf.validate('A') # This is invalid
+    >>> intf.validate('') # Now this is also invalid
+
 ## Known issues
 
 ### ``action`` parameter case-sensitivity
