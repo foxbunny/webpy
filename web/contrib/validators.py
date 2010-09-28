@@ -12,6 +12,7 @@ import re
 from gettext import gettext as _
 
 from web import form
+from web.utils import forcenum
 
 _datere = r'(19|2\d)\d{2}-((?:0?[1-9])|(?:1[0-2]))-((?:0?[1-9])|(?:[12][0-9])|(?:3[0-1]))'
 _timere = r'(?:[01]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?'
@@ -46,11 +47,11 @@ def ex_len(length, msg=None):
 
 def max_val(value, msg=None):
     return form.Validator(msg or _('This field must be less than or equal to %s.' % value),
-                          lambda x: not x or x <= value)
+                          lambda x: not x or forcenum(x) <= value)
 
 def min_val(value, msg=None):
     return form.Validator(msg or _('This field must be equal to or more than %s.' % value),
-                          lambda x: not x or x >= value)
+                          lambda x: not x or forcenum(x) >= value)
 
 def enum(lst, msg=None):
     return form.Validator(msg or _('That value is not allowed.'),
