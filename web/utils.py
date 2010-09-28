@@ -1453,6 +1453,61 @@ def forceint(n, default=0):
     except (TypeError, ValueError):
         return forceint(default)
 
+def forcefloat(n, default=0.0):
+    """ Foces conversion of ``n`` to float, and falls back on ``default``
+
+    Both ``n`` or ``default`` can be any numeric value, or a string that can be
+    converted into a float value.
+
+    Examples:
+
+        >>> forcefloat(1.0, 2.0)
+        1.0
+        >>> forcefloat(1, 3.0)
+        1.0
+        >>> forcefloat('5.2')
+        5.2000000000000002
+        >>> forcefloat('foo', 2.0)
+        2.0
+        >>> forcefloat('foo', 'bar')
+        0.0
+    
+    """
+    try:
+        return float(n)
+    except:
+        return forcefloat(default)
+
+def forcenum(n, default=0):
+    """ Forces conversion of ``n`` to a number falling back on ``default``
+
+    The return value can be either float or integer, depending on the nature of
+    the input value. Input value can be any numeric value, or a string that
+    represents a number.
+
+    Some rounding errors should be expected.
+
+    Examples:
+
+        >>> forcenum(1)
+        1
+        >>> forcenum(2.3, 0)
+        2.2999999999999998
+        >>> forcenum('10.0')
+        10.0
+        >>> forcenum('5.3')
+        5.2999999999999998
+        >>> forcenum('foo', 2.3)
+        2.2999999999999998
+        >>> forcenum('foo', 'bar')
+        0
+
+    """
+    if forceint(n, default) == forcefloat(n, default):
+        return forceint(n, default)
+    else:
+        return forcefloat(n, default)
+
 def findbyprefix(path_prefix):
     """ Finds a file based on path prefix without extension """
     p = [f for f in glob.glob(path_prefix + '.*') if not f.endswith('~')] # skip backup files
