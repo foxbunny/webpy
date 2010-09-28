@@ -34,34 +34,34 @@ zip4_code_re = re.compile(r'^\d{5}-\d{4}$')
 
 def max_len(length, msg=None):
     return form.Validator(msg or _('This field is limited to %s characters.' % length),
-                          lambda x: len(x) <= length)
+                          lambda x: not x or len(x) <= length)
 
 def min_len(length, msg=None):
     return form.Validator(msg or _('This field requires at least %s characters.' % length),
-                          lambda x: x and len(x) >= length or True)
+                          lambda x: not x or len(x) >= length)
 
 def ex_len(length, msg=None):
     return form.Validator(msg or _('This field must be exactly %s characters long.' % length),
-                          lambda x: x and len(x) == length or True)
+                          lambda x: not x or len(x) == length)
 
 def max_val(value, msg=None):
     return form.Validator(msg or _('This field must be less than or equal to %s.' % value),
-                          lambda x: x and x <= value or True)
+                          lambda x: not x or x <= value)
 
 def min_val(value, msg=None):
     return form.Validator(msg or _('This field must be equal to or more than %s.' % value),
-                          lambda x: x and x >= value or True)
+                          lambda x: not x or x >= value)
 
 def enum(lst, msg=None):
     return form.Validator(msg or _('That value is not allowed.'),
-                          lambda x: x in lst)
+                          lambda x: not x or x in lst)
 
 def dropdown(ddlist, msg=None):
     return enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
 
 def uniq_col(db, table, column, msg=None):
     return form.Validator(msg or _('There is already such value in column "%s" of table "%s".' % (value, column, table)),
-                          lambda x: x and x not in [i.get(column, None) for i in db.select(table, what=column)])
+                          lambda x: not x or x not in [i.get(column, None) for i in db.select(table, what=column)])
 
 alphanum = form.Validator(_('Please use only letters and numbers.'),
                           lambda x: not x or alnum_re.match(x))
