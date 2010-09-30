@@ -1,8 +1,13 @@
-web.py is in the public domain; it can be used for whatever purpose with absolutely no restrictions.
+web.py is in the public domain; it can be used for whatever purpose with
+absolutely no restrictions.
 
-CherryPy WSGI server that is included in the web.py as web.wsgiserver is licensed under CherryPy License. See web/wsgiserver/LICENSE.txt for more details.
+CherryPy WSGI server that is included in the web.py as web.wsgiserver is 
+licensed under CherryPy License. See web/wsgiserver/LICENSE.txt for more 
+details.
 
-web.py-fox is released under the BSD license. This fork is NOT released under public domain. Here's the text of the license under which web.py-fox is released:
+web.py-fox is released under a modified BSD license. This fork is NOT 
+released under public domain. Here's the text of the license under which 
+web.py-fox is released:
 
 Copyright (c) 2010, Branko Vukelic.
 All rights reserved.
@@ -17,6 +22,13 @@ modification, are permitted provided that the following conditions are met:
     * Neither the name of the author nor the names of the contributors 
       may be used to endorse or promote products derived from this software 
       without specific prior written permission.
+    * Portions of the code that are not covered by this license as noted below
+      are included and released under the license under which the original 
+      sources were released by respective authors.
+    * Portions of the code covered by this license can be freely used by
+      web.py authors and contributors for any purpose without restrictions,
+      including but not limited to releasing to public domain. The above
+      copyright notice may be removed in such cases.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
