@@ -27,8 +27,9 @@ modification, are permitted provided that the following conditions are met:
       sources were released by respective authors.
     * Portions of the code covered by this license can be freely used by
       web.py authors and contributors for any purpose without restrictions,
-      including but not limited to releasing to public domain. The above
-      copyright notice may be removed in such cases.
+      including but not limited to modification, sale, redistribution, or 
+      release to public domain. The above copyright notice may be removed 
+      in such cases.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
