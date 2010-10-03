@@ -1,9 +1,8 @@
 """ 
-Module for integrating forms and databases.
+Module for form-based CRUD operations.
 """
 
 import web
-
 
 def in_transaction(db, fnc):
     """ Execute fnc and wrap it in a database transaction """
@@ -16,15 +15,51 @@ def in_transaction(db, fnc):
     else:
         t.commit()
 
-def insert_form(f, db, tbl, _test=False):
-    """ Validate and insert a form into a database table """
-    if f and f.validates():
+def form_val_dict(f):
+    """ Return a dictionary of field-name-value mappings """
+    vals = [(i.name, i.value) for i in f.inputs]
+    return dict([(i[0], i[1]) for i in vals if i[0] in fields])
+
+def insert_form(f, db, tbl, extradata={}, fields=[], _test=False):
+    """ Validate and insert a form into a database table 
+    
+    Data not found in the form can be specified using extradata argument, which
+    is a dictionary of column-name-value pairs.
+
+    Optional parameter ``fields`` can be used to specify the exact field names
+    to use. Field names that are not found in the form are silently ignored.
+    
+    """
+    if all([f, f.validates(), db, tbl]):
         # build value dictionary
-        vals = dict([(i.name, i.value) for i in f.inputs])
-        if db and tbl:
-            # function to execute in transaction
-            def ins():
-                db.insert(tbl, _test, **vals)
-            # run query
-            return in_transaction(db, ins)
+        vals = form_val_dict(f)
+        vals.update(extradata)
+        # function to execute in transaction
+        def ins():
+            db.insert(tbl, _test, **vals)
+        # run query
+        return in_transaction(db, ins)
     return False
+
+def update_with_form(f, db, tbl, row_id, pkey='id', extradata={}, 
+                     fields=[], _test=False):
+    """ Validate form and update the record with ``row_id`` 
+    
+    Primary key column is assumed to be called ``id``. To specify a different
+    primary key column, use the ``pkey`` argument.
+
+    Data not found in the form can be specified using extradata argument, which
+    is a dictionary of column-name-value pairs.
+
+    Optional parameter ``fields`` can be used to specify the exact field names
+    to use. Field names that are not found in the form are silently ignored.
+    
+    """
+    if all([f, f.validates(), row_id, db, tbl]):
+        vals = form_val_dict(f)
+        vals.update(extradata)
+        def upd():
+            db.update(tbl, '%s = $id' % pkey, {'id': row_id}, _test, **vals)
+        return in_transaction(upd)
+    return False
+
