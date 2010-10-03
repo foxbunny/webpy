@@ -31,13 +31,10 @@ def insert_form(f, db, tbl, extradata={}, fields=[], _test=False):
     
     """
     if all([f, f.validates(), db, tbl]):
-        # build value dictionary
         vals = form_val_dict(f)
         vals.update(extradata)
-        # function to execute in transaction
         def ins():
             db.insert(tbl, _test, **vals)
-        # run query
         return in_transaction(db, ins)
     return False
 
