@@ -55,7 +55,7 @@ def min_val(value, msg=None):
 
 def enum(lst, msg=None):
     return form.Validator(msg or _('That value is not allowed.'),
-                          lambda x: not x or x in lst)
+                          lambda x: not x or lst and x in lst)
 
 def dropdown(ddlist, msg=None):
     return enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
