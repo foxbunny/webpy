@@ -4,8 +4,10 @@ import web
 from web.utils import slugify
 
 __all__ = [
-    'sweet', 'accepts', 'ajax',
+    'sweet', 'accepts', 'ajax', 'sweet_urls', 'autoactions'
 ]
+
+DEFAULT_ACTIONS = ['edit', 'delete', 'new']
 
 def dprint(msg):
     """ Prints a debug message if debug flag is set.
