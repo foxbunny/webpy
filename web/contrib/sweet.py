@@ -4,7 +4,7 @@ import web
 from web.utils import slugify
 
 __all__ = [
-    'sweet', 'accepts', 'ajax', 'sweet_urls', 'autoactions'
+    'sweet', 'accepts', 'ajax', 'sweet_urls', 'autoaction'
 ]
 
 DEFAULT_ACTIONS = ['edit', 'delete', 'new']
