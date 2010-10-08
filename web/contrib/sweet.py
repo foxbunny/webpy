@@ -502,6 +502,32 @@ class Ajax(object):
 ajax = Ajax
 
 
+def sweet_urls(controller_name, resource_id='(.*)'):
+    """ Generate web.py-style URL mappings for a controller """
+    urls = (('%s/edit/%s/?' % (controller_name, resource_id),
+             controller_name),)
+    urls += (('%s/delete/%s/?' % (controller_name, resource_id),
+              controller_name),)
+    urls += (('%s/new/?' % contoller_name, contoller_name),)
+    urls += (('%s/?' % contoller_name, contoller_name),)
+    return urls
+
+def autoaction():
+    # FIXME: Also check if web.config.autoactions is an iterable
+    if hasattr(web.config, 'autoactions') and web.config.autoactions:
+        actions = web.config.autoactions
+    else:
+        actions = DEFAULT_ACTIONS
+    
+    if not web.input().get('action', None):
+        for action in actions:
+            action_re = re.compile('^.*?/%s(?:/|/?$)' % action)
+            if action_re.match(web.ctx.path):
+                web.config.logger.debug('Matched autoaction: %s' % action)
+                web.ctx.env['QUERY_STRING'] += '&action=%s' % action
+                break
+
+
 if __name__ == '__main__':
     # Example application:
 
