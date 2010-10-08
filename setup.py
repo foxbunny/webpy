@@ -5,7 +5,7 @@
 from distutils.core import setup
 
 setup(name='web.py-fox',
-      version='0.34.13fox-1',
+      version='0.34.13fox-2',
       description='web.py: makes web apps',
       author='Aaron Swartz',
       author_email='me@aaronsw.com',
