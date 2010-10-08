@@ -8,8 +8,20 @@ __all__ = [
 ]
 
 def dprint(msg):
-    """ Prints a debug message if debug flag is set """
-    if web.config.debug:
+    """ Prints a debug message if debug flag is set.
+    
+    If ``web.config`` has a key called ``logger``, sweet will assume it is a
+    logger object, and try to output debug information there. Failing that, it
+    will just print the error message.
+    
+    """
+    if hasattr(web.config, 'logger'):
+        try:
+            web.config.logger.debug(msg)
+        except:
+            if web.config.debug:
+                print msg
+    elif web.config.debug:
         print msg
 
 
