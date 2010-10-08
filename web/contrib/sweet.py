@@ -510,8 +510,8 @@ def sweet_urls(controller_name, resource_id='(.*)'):
              controller_name),)
     urls += (('%s/delete/%s/?' % (controller_name, resource_id),
               controller_name),)
-    urls += (('%s/new/?' % contoller_name, contoller_name),)
-    urls += (('%s/?' % contoller_name, contoller_name),)
+    urls += (('%s/new/?' % controller_name, controller_name),)
+    urls += (('%s/?' % controller_name, controller_name),)
     return urls
 
 def autoaction():
