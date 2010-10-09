@@ -16,7 +16,7 @@ from web.utils import forcenum
 
 def filtered_or_raw(f, x):
     """ Call ``f`` on ``x`` or return ``x`` if ``f`` is not callable """
-    returh hasattr(f, '__call__') and f(x) or x
+    return hasattr(f, '__call__') and f(x) or x
 
 _datere = r'(19|2\d)\d{2}-((?:0?[1-9])|(?:1[0-2]))-((?:0?[1-9])|(?:[12][0-9])|(?:3[0-1]))'
 _timere = r'(?:[01]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?'
