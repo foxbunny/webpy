@@ -110,8 +110,9 @@ class Form:
     d = property(_get_d)
 
 class Input(object):
-    def __init__(self, name, *validators, **attrs):
+    def __init__(self, name, fltr=None, *validators, **attrs):
         self.name = name
+        self.fltr = fltr
         self.validators = validators
         self.attrs = attrs = AttributeList(attrs)
         
@@ -140,6 +141,7 @@ class Input(object):
         self.set_value(value)
 
         for v in self.validators:
+            value = self.fltr and self.fltr(value) or value
             if not v.valid(value):
                 self.note = v.msg
                 return False
@@ -149,7 +151,8 @@ class Input(object):
         self.value = value
 
     def get_value(self):
-        return self.value
+        value = self.fltr and self.fltr(self.value) or self.value
+        return value
 
     def render(self):
         attrs = self.attrs.copy()
@@ -224,9 +227,9 @@ class Dropdown(Input):
         >>> Dropdown(name='foo', args=[('a', 'aa'), ('b', 'bb'), ('c', 'cc')], value='b').render()
         '<select id="foo" name="foo">\n  <option value="a">aa</option>\n  <option selected="selected" value="b">bb</option>\n  <option value="c">cc</option>\n</select>\n'
     """
-    def __init__(self, name, args, *validators, **attrs):
+    def __init__(self, name, args, fltr=None, *validators, **attrs):
         self.args = args
-        super(Dropdown, self).__init__(name, *validators, **attrs)
+        super(Dropdown, self).__init__(name, fltr, *validators, **attrs)
 
     def render(self):
         attrs = self.attrs.copy()
@@ -301,10 +304,10 @@ class Radio(Input):
 </span>'
 
     """
-    def __init__(self, name, args, vertical=False, *validators, **attrs):
+    def __init__(self, name, args, vertical=False, fltr=None, *validators, **attrs):
         self.args = args
         self.vertical = vertical
-        super(Radio, self).__init__(name, *validators, **attrs)
+        super(Radio, self).__init__(name, fltr, *validators, **attrs)
 
     def render(self):
         x = '<span id="%s">\n' % self.name
@@ -379,8 +382,8 @@ class Button(Input):
     >>> Button("action", value="save", html="<b>Save Changes</b>").render()
     '<button id="action" value="save" name="action"><b>Save Changes</b></button>'
     """
-    def __init__(self, name, *validators, **attrs):
-        super(Button, self).__init__(name, *validators, **attrs)
+    def __init__(self, name, fltr=None, *validators, **attrs):
+        super(Button, self).__init__(name, fltr, *validators, **attrs)
         self.description = ""
 
     def render(self):
