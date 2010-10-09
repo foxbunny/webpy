@@ -65,7 +65,7 @@ def dropdown(ddlist, msg=None):
     return ddlist and enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
 
 def uniq_col(db, table, column, clean=None, msg=None):
-    return form.Validator(msg or _('There is already such value in column "%s" of table "%s".' % (value, column, table)),
+    return form.Validator(msg or _('There is already such value in column "%s" of table "%s".' % (column, table)),
                           lambda x: not x or filtered_or_raw(clean, x) not in [i.get(column, None) for i in db.select(table, what=column)])
 
 alphanum = form.Validator(_('Please use only letters and numbers.'),
