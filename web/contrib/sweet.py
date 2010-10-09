@@ -1,10 +1,12 @@
 import re
+import json as jsn
 
 import web
 from web.utils import slugify
 
 __all__ = [
-    'sweet', 'accepts', 'ajax', 'sweet_urls', 'autoaction'
+    'sweet', 'accepts', 'ajax', 'sweet_urls', 'autoaction',
+    'respond_with_javascript', 'respond_with_json', 'json',
 ]
 
 DEFAULT_ACTIONS = ['edit', 'delete', 'new']
@@ -528,6 +530,23 @@ def autoaction():
                 web.config.logger.debug('Matched autoaction: %s' % action)
                 web.ctx.env['QUERY_STRING'] += '&action=%s' % action
                 break
+
+def respond_with_javascript():
+    web.header('Content-Type', 'application/javascript', unique=True)
+
+def respond_with_json():
+    web.header('Content-Type', 'application/json', unique=True)
+
+def json(f):
+    """ Converts any output of function ``f`` to JSON dump
+
+    You can read more about JSON at http://www.json.org/
+
+    """
+    def jsonified(*args, **kwargs):
+        respond_with_json()
+        return jsn.dumps(f(*args, **kwargs))
+    return jsonified
 
 
 if __name__ == '__main__':
