@@ -14,6 +14,10 @@ from gettext import gettext as _
 from web import form
 from web.utils import forcenum
 
+def filtered_or_raw(f, x):
+    """ Call ``f`` on ``x`` or return ``x`` if ``f`` is not callable """
+    returh hasattr(f, '__call__') and f(x) or x
+
 _datere = r'(19|2\d)\d{2}-((?:0?[1-9])|(?:1[0-2]))-((?:0?[1-9])|(?:[12][0-9])|(?:3[0-1]))'
 _timere = r'(?:[01]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?'
 alnum_re = re.compile(r'^\w+$')
@@ -60,9 +64,9 @@ def enum(lst, msg=None):
 def dropdown(ddlist, msg=None):
     return ddlist and enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
 
-def uniq_col(db, table, column, msg=None):
+def uniq_col(db, table, column, clean=None, msg=None):
     return form.Validator(msg or _('There is already such value in column "%s" of table "%s".' % (value, column, table)),
-                          lambda x: not x or x not in [i.get(column, None) for i in db.select(table, what=column)])
+                          lambda x: not x or filtered_or_raw(clean, x) not in [i.get(column, None) for i in db.select(table, what=column)])
 
 alphanum = form.Validator(_('Please use only letters and numbers.'),
                           lambda x: not x or alnum_re.match(x))
