@@ -62,7 +62,7 @@ def enum(lst, msg=None):
                           lambda x: not x or lst and x in lst)
 
 def dropdown(ddlist, msg=None):
-    return ddlist and enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
+    return enum([i[0] for i in ddlist], msg or _('Please use the drop down control.'))
 
 def uniq_col(db, table, column, clean=None, msg=None):
     return form.Validator(msg or _('There is already such value in column "%s" of table "%s".' % (column, table)),
