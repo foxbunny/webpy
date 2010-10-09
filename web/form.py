@@ -226,7 +226,7 @@ class Dropdown(Input):
     """
     def __init__(self, name, args, *validators, **attrs):
         self.args = args
-        super(Dropdown, self).__init__(name, validators, **attrs)
+        super(Dropdown, self).__init__(name, *validators, **attrs)
 
     def render(self):
         attrs = self.attrs.copy()
