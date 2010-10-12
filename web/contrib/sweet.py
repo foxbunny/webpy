@@ -508,11 +508,9 @@ ajax = Ajax
 
 def sweet_urls(controller_name, resource_id='(.*)', prefix=''):
     """ Generate web.py-style URL mappings for a controller """
-    urls = ('%s/%s/edit/%s/?' % (prefix, controller_name, resource_id),
-             controller_name)
-    urls += ('%s/%s/delete/%s/?' % (prefix, controller_name, resource_id),
-              controller_name)
-    urls += ('%s/%s/update/%s/?' % (prefix, controller_name, resource_id),
+    urls = ('%s/%s/edit/%s/?' % (prefix, controller_name, resource_id), controller_name)
+    urls += ('%s/%s/delete/%s/?' % (prefix, controller_name, resource_id), controller_name)
+    urls += ('%s/%s/update/%s/?' % (prefix, controller_name, resource_id), controller_name)
     urls += ('%s/%s/new/?' % (prefix, controller_name), controller_name)
     urls += ('%s/%s/?' % (prefix, controller_name), controller_name)
     return urls
