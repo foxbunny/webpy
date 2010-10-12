@@ -512,6 +512,7 @@ def sweet_urls(controller_name, resource_id='(.*)', prefix=''):
              controller_name)
     urls += ('%s/%s/delete/%s/?' % (prefix, controller_name, resource_id),
               controller_name)
+    urls += ('%s/%s/update/%s/?' % (prefix, controller_name, resource_id),
     urls += ('%s/%s/new/?' % (prefix, controller_name), controller_name)
     urls += ('%s/%s/?' % (prefix, controller_name), controller_name)
     return urls
