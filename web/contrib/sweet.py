@@ -9,7 +9,7 @@ __all__ = [
     'respond_with_javascript', 'respond_with_json', 'json',
 ]
 
-DEFAULT_ACTIONS = ['edit', 'delete', 'new']
+DEFAULT_ACTIONS = ['edit', 'delete', 'new', 'update']
 
 def dprint(msg):
     """ Prints a debug message if debug flag is set.
