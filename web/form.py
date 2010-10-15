@@ -21,7 +21,7 @@ class Form:
         '<table>\n    <tr><th><label for="x">x</label></th><td><input type="text" id="x" name="x"/></td></tr>\n</table>'
     """
     def __init__(self, *inputs, **kw):
-        self.inputs = inputs
+        self.inputs = list(inputs)
         self.valid = True
         self.note = None
         self.validators = kw.pop('validators', [])
