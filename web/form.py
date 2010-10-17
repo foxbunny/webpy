@@ -120,6 +120,7 @@ class Input(object):
         self.pre = attrs.pop('pre', "")
         self.post = attrs.pop('post', "")
         self.note = None
+        self.returns = attrs.pop('returns', None)
         
         self.id = attrs.setdefault('id', self.get_default_id())
         
@@ -149,7 +150,7 @@ class Input(object):
         self.value = value
 
     def get_value(self):
-        return self.value
+        return self.returns and self.returns(self.value) or self.value
 
     def render(self):
         attrs = self.attrs.copy()
