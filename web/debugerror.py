@@ -11,8 +11,8 @@ http://www.xfree86.org/3.3.6/COPYRIGHT2.html#5
 __all__ = ["debugerror", "djangoerror", "emailerrors"]
 
 import sys, urlparse, pprint, traceback
-from net import websafe
 from template import Template
+from net import websafe
 from utils import sendmail, safestr
 import webapi as web
 
